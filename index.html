@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SINTRA Lead Action</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      padding-top: 100px;
+    }
+    h1 {
+      color: #1a1a1a;
+    }
+    p {
+      font-size: 18px;
+      margin-bottom: 40px;
+      color: #333;
+    }
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #fff;
+    }
+    .junk { background-color: #d9534f; }
+    .info { background-color: #0275d8; }
+    .quote { background-color: #5cb85c; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to SINTRA</h1>
+  <p>Please select the desired action to perform.</p>
+
+  <div>
+    <button class="junk" onclick="sendWebhook('junk')">Junk</button>
+    <button class="info" onclick="redirectToInfo()">Need More Information</button>
+    <button class="quote" onclick="sendWebhook('quote')">Ready to Quote</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const leadData = {
+      Lead_ID: params.get("Lead_ID"),
+      Lead_Status: params.get("Lead_Status"),
+      Owner: params.get("Owner"),
+      Full_Name: params.get("Full_Name"),
+      Email: params.get("Email"),
+      Lead_Source: params.get("Lead_Source")
+    };
+
+    const webhooks = {
+      junk: "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.f64f23d55dd899d6832eb7f27b776721.6fec0d16c48b770865031c4755a8dc08&isdebug=false",
+      quote: "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.47f30772537aaaf221dd0528d2aa1ac7.643656db5880b0cf1931639d593e9c4d&isdebug=false"
+    };
+
+    function sendWebhook(type) {
+      const url = webhooks[type];
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(leadData)
+      });
+    }
+
+    function redirectToInfo() {
+      const dealURL = "https://crm.zoho.com/crm/org681243042/tab/Potentials/" + leadData.Lead_ID;
+      window.open(dealURL, '_blank');
+    }
+  </script>
+</body>
+</html>
