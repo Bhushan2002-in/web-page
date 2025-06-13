@@ -5,48 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SINTRA Lead Action</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7fa;
-      text-align: center;
-      padding: 50px;
+    * {
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e3efff, #f4f7fa);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
     h1 {
-      font-size: 36px;
+      font-size: 32px;
+      color: #003d99;
       margin-bottom: 10px;
     }
+
     p {
       font-size: 18px;
+      color: #555;
       margin-bottom: 30px;
     }
+
     .button-group {
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
     }
+
     button {
-      padding: 15px 25px;
+      padding: 15px 20px;
       font-size: 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       background-color: #0052cc;
       color: white;
+      transition: background-color 0.3s;
     }
+
     button:hover {
       background-color: #003d99;
+    }
+
+    #success-message {
+      display: none;
+      font-size: 18px;
+      color: #0a9928;
+      font-weight: bold;
+      background-color: #e8f8ee;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #b8e0c8;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    iframe {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to SINTRA</h1>
-  <p>Please select the desired action to perform.</p>
+  <div class="container">
+    <h1>Welcome to SINTRA</h1>
+    <p>Please select the desired action to perform.</p>
 
-  <div class="button-group">
-    <button onclick="sendToWebhook('junk')">Junk</button>
-    <button onclick="redirectToPage()">Need More Information</button>
-    <button onclick="sendToWebhook('quote')">Ready to Quote</button>
+    <div class="button-group">
+      <button onclick="sendToWebhook('junk')">Junk</button>
+      <button onclick="redirectToPage()">Need More Information</button>
+      <button onclick="sendToWebhook('quote')">Ready to Quote</button>
+    </div>
+
+    <div id="success-message">✅ Data has been processed. Thank you!</div>
+
+    <iframe name="invisibleFrame"></iframe>
   </div>
 
   <script>
@@ -59,7 +112,7 @@
 
     function sendToWebhook(type) {
       if (!query.Lead_ID) {
-        console.error("Missing Lead_ID in URL");
+        alert("Missing Lead_ID in URL");
         return;
       }
 
@@ -75,6 +128,7 @@
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = webhooks[type];
+      form.target = "invisibleFrame";
 
       const input = document.createElement('input');
       input.type = 'hidden';
@@ -84,11 +138,15 @@
 
       document.body.appendChild(form);
       form.submit();
+
+      setTimeout(() => {
+        document.getElementById("success-message").style.display = "block";
+      }, 1000);
     }
 
     function redirectToPage() {
       if (!query.Lead_ID) {
-        console.error("Missing Lead_ID in URL");
+        alert("Missing Lead_ID in URL");
         return;
       }
       const redirectUrl = `https://crm.zoho.com/crm/org681243042/tab/Potentials/${query.Lead_ID}`;
