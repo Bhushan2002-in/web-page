@@ -50,16 +50,13 @@
   </div>
 
   <script>
-    // ✅ 1. Extract query params into an object
     const query = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 
-    // ✅ 2. Define webhook URLs
     const webhooks = {
       junk: "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.f64f23d55dd899d6832eb7f27b776721.6fec0d16c48b770865031c4755a8dc08&isdebug=false",
       quote: "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.47f30772537aaaf221dd0528d2aa1ac7.643656db5880b0cf1931639d593e9c4d&isdebug=false"
     };
 
-    // ✅ 3. Function to send JSON payload
     function sendToWebhook(type) {
       if (!query.Lead_ID) {
         console.error("Missing Lead_ID in URL");
@@ -75,29 +72,27 @@
         Lead_Source: query.Lead_Source
       };
 
-      fetch(webhooks[type], {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ Data sent successfully to webhook.");
-        } else {
-          alert("❌ Failed to send data. Server error.");
-        }
-      })
-      .catch(err => {
-        alert("❌ Failed to send data. Network error.");
-        console.error(err);
-      });
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = webhooks[type];
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'data';
+      input.value = JSON.stringify(data);
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+      form.submit();
     }
 
-    // ✅ 4. Redirect function
     function redirectToPage() {
-      window.open("https://crm.zoho.com/crm/org681243042/tab/Potentials/3723703000022067470", "_blank");
+      if (!query.Lead_ID) {
+        console.error("Missing Lead_ID in URL");
+        return;
+      }
+      const redirectUrl = `https://crm.zoho.com/crm/org681243042/tab/Potentials/${query.Lead_ID}`;
+      window.open(redirectUrl, "_blank");
     }
   </script>
 </body>
